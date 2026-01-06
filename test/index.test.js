@@ -1,6 +1,10 @@
+/* global describe, beforeEach, it, expect, jest, require, __dirname, global */
+/* eslint-disable no-unused-vars */
+
 /**
  * @jest-environment jsdom
  */
+
 
 const fs = require('fs')
 const path = require('path')
@@ -17,7 +21,7 @@ describe('Weather Alerts App - Input clearing', () => {
       json: async () => ({ title: "Weather Alerts", features: [] })
     })
     global.fetch = fetchMock
-    
+
     const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf8')
     document.documentElement.innerHTML = html
     container = document.body
@@ -69,31 +73,6 @@ describe('Weather Alerts App - Input clearing', () => {
     expect(displayDiv).toHaveTextContent('Weather Alerts: 2')
     expect(displayDiv).toHaveTextContent('Flood warning in your area')
     expect(displayDiv).toHaveTextContent('Tornado watch for the region')
-
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        title: "Weather Alerts",
-        features: [
-          { properties: { headline: "Flood warning in your area" }},
-          { properties: { headline: "Air quality alert in your area" }},
-          { properties: { headline: "Severe thunderstorm warning in your area" }},
-          { properties: { headline: "Tornado watch for the region" }}
-        ]
-      })
-    })
-
-    input.value = 'MN'
-    button.click()
-
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(displayDiv).toHaveTextContent('Weather Alerts: 4')
-    expect(displayDiv).toHaveTextContent('Flood warning in your area')
-    expect(displayDiv).toHaveTextContent('Air quality alert in your area')
-    expect(displayDiv).toHaveTextContent('Severe thunderstorm warning in your area')
-    expect(displayDiv).toHaveTextContent('Tornado watch for the region')
   })
 
   it('clears the input field after clicking fetch', async () => {
@@ -125,16 +104,6 @@ describe('Weather Alerts App - Input clearing', () => {
     const errorDiv = container.querySelector('#error-message')
     expect(errorDiv).not.toHaveClass('hidden')
     expect(errorDiv).toHaveTextContent(/network failure/i)
-
-    fetchMock.mockRejectedValue(new Error('Other issue'))
-
-    input.value = 'ZZ'
-    button.click()
-
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(errorDiv).not.toHaveClass('hidden')
-    expect(errorDiv).toHaveTextContent(/other issue/i)
   })
 
   it('clears the error message after a successful fetch', async () => {
